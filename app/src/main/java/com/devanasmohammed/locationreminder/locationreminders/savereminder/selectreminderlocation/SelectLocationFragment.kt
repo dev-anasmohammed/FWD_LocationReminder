@@ -14,6 +14,7 @@ import androidx.databinding.DataBindingUtil
 import com.devanasmohammed.locationreminder.BuildConfig
 import com.devanasmohammed.locationreminder.R
 import com.devanasmohammed.locationreminder.base.BaseFragment
+import com.devanasmohammed.locationreminder.base.NavigationCommand
 import com.devanasmohammed.locationreminder.databinding.FragmentSelectLocationBinding
 import com.devanasmohammed.locationreminder.locationreminders.savereminder.SaveReminderViewModel
 import com.devanasmohammed.locationreminder.utils.LocationPermissionHelper
@@ -44,7 +45,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var activityResultLauncherPermissions: ActivityResultLauncher<Array<String>>
     private var isGetLocation = false
     private var marker: Marker? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -85,13 +85,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 }
             }
 
-
-//        TODO: put a marker to location that the user selected
-
-
-//        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
-
         return binding.root
     }
 
@@ -104,6 +97,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             requireActivity(), requireView(), activityResultLauncherPermissions
         ).checkPermissionThenDoMethod {
             getUserLocation()
+        }
+
+        //save the location
+        binding.saveBtn.setOnClickListener {
+            onLocationSelected()
         }
     }
 
@@ -142,10 +140,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     }
 
+    /**
+     * Handle user confirms on the selected location
+     */
     private fun onLocationSelected() {
-        //        TODO: When the user confirms on the selected location,
-        //         send back the selected location details to the view model
-        //         and navigate back to the previous fragment to save the reminder and add the geofence
+        marker?.let { marker ->
+            _viewModel.latitude.value = marker.position.latitude
+            _viewModel.longitude.value = marker.position.longitude
+            _viewModel.reminderSelectedLocationStr.value = marker.title
+            _viewModel.navigationCommand.value = NavigationCommand.Back
+        }
     }
 
 
@@ -232,6 +236,4 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         }
     }
-
-
 }
