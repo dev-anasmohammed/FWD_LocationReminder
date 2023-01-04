@@ -13,12 +13,12 @@
         tools:context=".authentication.AuthenticationActivity">
 
         <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_normal"
             android:layout_marginEnd="@dimen/margin_normal"
-            android:layout_width="0dp"
-            android:textAlignment="center"
-            android:layout_height="wrap_content"
             android:text="@string/welcome_to_the_location_reminder_app"
+            android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="@dimen/text_size_large"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -30,14 +30,13 @@
             android:id="@+id/login_btn"
             android:layout_width="0dp"
             android:layout_height="60dp"
-            android:textColor="@color/white"
-            android:text="@string/login"
             android:background="@color/colorPrimary"
             android:backgroundTint="@color/colorPrimary"
+            android:text="@string/login"
+            android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

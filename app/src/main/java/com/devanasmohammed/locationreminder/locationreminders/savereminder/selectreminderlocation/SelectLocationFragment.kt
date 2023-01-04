@@ -10,17 +10,22 @@ import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.*
 import com.devanasmohammed.locationreminder.locationreminders.savereminder.SaveReminderViewModel
 import com.devanasmohammed.locationreminder.utils.setDisplayHomeAsUpEnabled
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import org.koin.android.ext.android.inject
 
-class SelectLocationFragment : BaseFragment() {
+@Suppress("DEPRECATION")
+class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSelectLocationBinding
+    private lateinit var map: GoogleMap
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_select_location, container, false)
 
@@ -30,7 +35,11 @@ class SelectLocationFragment : BaseFragment() {
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
-//        TODO: add the map setup implementation
+        //the map setup implementation
+        val mapFragment =
+            childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
 //        TODO: zoom to the user location after taking his permission
 //        TODO: add style to the map
 //        TODO: put a marker to location that the user selected
@@ -68,6 +77,20 @@ class SelectLocationFragment : BaseFragment() {
             true
         }
         else -> super.onOptionsItemSelected(item)
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        setMapStyle()
+    }
+
+    /**
+     * This method to set a custom[Night Style] style for the map
+     */
+    private fun setMapStyle(){
+        map.setMapStyle(
+            MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style)
+        )
     }
 
 
