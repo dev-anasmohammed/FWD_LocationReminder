@@ -4,32 +4,38 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import com.devanasmohammed.locationreminder.R
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import com.devanasmohammed.locationreminder.BuildConfig
+import com.devanasmohammed.locationreminder.R
 import com.devanasmohammed.locationreminder.base.BaseFragment
 import com.devanasmohammed.locationreminder.databinding.FragmentSelectLocationBinding
-import com.google.android.gms.location.*
-import com.google.android.gms.maps.model.*
 import com.devanasmohammed.locationreminder.locationreminders.savereminder.SaveReminderViewModel
 import com.devanasmohammed.locationreminder.utils.LocationPermissionHelper
 import com.devanasmohammed.locationreminder.utils.setDisplayHomeAsUpEnabled
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
+import java.util.*
 
 @Suppress("DEPRECATION")
-class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
+class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -37,7 +43,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private lateinit var activityResultLauncherPermissions: ActivityResultLauncher<Array<String>>
     private var isGetLocation = false
-//    private var marker: Marker? = null
+    private var marker: Marker? = null
 
 
     override fun onCreateView(
@@ -95,7 +101,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
 
         //zoom to the user location after taking his permission
         LocationPermissionHelper(
-            requireActivity(),requireView(),activityResultLauncherPermissions
+            requireActivity(), requireView(), activityResultLauncherPermissions
         ).checkPermissionThenDoMethod {
             getUserLocation()
         }
@@ -114,12 +120,11 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
                         if (location != null && !isGetLocation) {
                             val userLocation = LatLng(location.latitude, location.longitude)
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 25f))
-                            Log.e("location","${location.latitude} , ${location.longitude}")
-                        //                            marker = map.addMarker(
-//                                MarkerOptions().position(userLocation).title("Your Location")
-//                            )
-//                            marker?.showInfoWindow()
-//                            isGetLocation = true
+                            marker = map.addMarker(
+                                MarkerOptions().position(userLocation).title("Your Location")
+                            )
+                            marker?.showInfoWindow()
+                            isGetLocation = true
                         }
                     }
                 }
@@ -172,15 +177,60 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         setMapStyle()
+        setPOIClick()
+        setLongPressClick()
     }
 
     /**
      * This method to set a custom[Night Style] style for the map
      */
-    private fun setMapStyle(){
+    private fun setMapStyle() {
         map.setMapStyle(
             MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style)
         )
+    }
+
+    /**
+     * This method usd to add marker on map point of interest (POI) on the map
+     * with click
+     */
+    private fun setPOIClick(){
+        map.setOnPoiClickListener { poi ->
+            map.clear()
+            marker = map.addMarker(
+                MarkerOptions()
+                    .position(poi.latLng)
+                    .title("Selected Location")
+            )
+            marker?.showInfoWindow()
+            map.animateCamera(CameraUpdateFactory.newLatLng(poi.latLng))
+        }
+    }
+
+    /**
+     * This method usd to add marker on map point of interest (POI) on the map
+     * with long press click
+     */
+    private fun setLongPressClick(){
+        map.setOnMapLongClickListener { latLng ->
+            val snippet = String.format(
+                Locale.getDefault(),
+                "Lat: %1$.5f, Long: %2$.5f",
+                latLng.latitude,
+                latLng.longitude
+            )
+            map.clear()
+            marker = map.addMarker(
+                MarkerOptions()
+                    .position(latLng)
+                    .title("Selected Location")
+                    .snippet(snippet)
+            )
+            marker?.showInfoWindow()
+            map.animateCamera(CameraUpdateFactory.newLatLng(latLng))
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 25f))
+
+        }
     }
 
 
