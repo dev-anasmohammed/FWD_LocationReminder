@@ -52,6 +52,7 @@ dependencies {
     //Firebase
     //Firebase Authentication
     implementation 'com.google.firebase:firebase-auth:21.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.4.0'
     //Firebase UI Auth
     implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
     // Room
