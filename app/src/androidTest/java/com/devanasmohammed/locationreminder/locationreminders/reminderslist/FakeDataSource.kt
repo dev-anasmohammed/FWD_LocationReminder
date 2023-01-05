@@ -6,6 +6,7 @@ import com.devanasmohammed.locationreminder.locationreminders.data.dto.Result
 import com.devanasmohammed.locationreminder.locationreminders.data.dto.Result.Error
 import com.devanasmohammed.locationreminder.locationreminders.data.dto.Result.Success
 
+//Use FakeDataSource that acts as a test double to the LocalDataSource
 class FakeDataSource(var reminders: MutableList<ReminderDTO> = mutableListOf())
     : ReminderDataSource {
     private var shouldReturnError = false
