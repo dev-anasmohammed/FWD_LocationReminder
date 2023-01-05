@@ -1,6 +1,9 @@
 package com.devanasmohammed.locationreminder.locationreminders.savereminder
 
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -10,6 +13,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -19,14 +23,14 @@ import com.devanasmohammed.locationreminder.R
 import com.devanasmohammed.locationreminder.base.BaseFragment
 import com.devanasmohammed.locationreminder.base.NavigationCommand
 import com.devanasmohammed.locationreminder.databinding.FragmentSaveReminderBinding
+import com.devanasmohammed.locationreminder.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.devanasmohammed.locationreminder.locationreminders.reminderslist.ReminderDataItem
+import com.devanasmohammed.locationreminder.utils.Constants.Companion.ACTION_GEOFENCE_EVENT
 import com.devanasmohammed.locationreminder.utils.Constants.Companion.LOCATION_RC
 import com.devanasmohammed.locationreminder.utils.LocationPermissionHelper
 import com.devanasmohammed.locationreminder.utils.setDisplayHomeAsUpEnabled
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 import org.koin.android.ext.android.inject
 
@@ -37,6 +41,14 @@ class SaveReminderFragment : BaseFragment() {
     private lateinit var binding: FragmentSaveReminderBinding
     private lateinit var reminderDataItem: ReminderDataItem
     private lateinit var activityResultLauncherPermissions: ActivityResultLauncher<Array<String>>
+    private lateinit var geofencingClient: GeofencingClient
+
+    private val geofencePendingIntent: PendingIntent by lazy {
+        val intent = Intent(activity, GeofenceBroadcastReceiver::class.java)
+        intent.action = ACTION_GEOFENCE_EVENT
+
+        PendingIntent.getBroadcast(activity, 0, intent, FLAG_MUTABLE)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,6 +59,9 @@ class SaveReminderFragment : BaseFragment() {
 
         setDisplayHomeAsUpEnabled(true)
         binding.viewModel = _viewModel
+
+        //init geofence client
+        geofencingClient = LocationServices.getGeofencingClient(requireActivity())
 
         activityResultLauncherPermissions =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
@@ -157,7 +172,40 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
+    /**
+     * Build the geofence using the geofence builder and make a geofence request
+     */
+    @SuppressLint("MissingPermission")
     private fun addGeofenceForRemainder() {
+        val currentGeofenceData = reminderDataItem
+
+        val geofence = Geofence.Builder()
+            .setRequestId(currentGeofenceData.id)
+            .setCircularRegion(
+                currentGeofenceData.latitude!!,
+                currentGeofenceData.longitude!!,
+                100f
+            )
+            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+            .build()
+
+        val geofencingRequest = GeofencingRequest.Builder()
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .addGeofence(geofence)
+            .build()
+
+        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
+            addOnSuccessListener {
+                _viewModel.validateAndSaveReminder(reminderDataItem)
+            }
+            addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to add Geofence", Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
 
     }
 
