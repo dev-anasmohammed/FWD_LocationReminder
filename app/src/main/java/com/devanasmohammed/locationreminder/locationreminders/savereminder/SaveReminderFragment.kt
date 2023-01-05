@@ -3,7 +3,7 @@ package com.devanasmohammed.locationreminder.locationreminders.savereminder
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_MUTABLE
+import android.app.PendingIntent.*
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -47,7 +47,14 @@ class SaveReminderFragment : BaseFragment() {
         val intent = Intent(activity, GeofenceBroadcastReceiver::class.java)
         intent.action = ACTION_GEOFENCE_EVENT
 
-        PendingIntent.getBroadcast(activity, 0, intent, FLAG_MUTABLE)
+        PendingIntent.getBroadcast(activity, 0, intent, FLAG_UPDATE_CURRENT)
+    }
+
+    private val geofencePendingIntentForSPlus: PendingIntent by lazy {
+        val intent = Intent(activity, GeofenceBroadcastReceiver::class.java)
+        intent.action = ACTION_GEOFENCE_EVENT
+
+        PendingIntent.getBroadcast(activity, 0, intent, FLAG_IMMUTABLE)
     }
 
     override fun onCreateView(
@@ -195,7 +202,15 @@ class SaveReminderFragment : BaseFragment() {
             .addGeofence(geofence)
             .build()
 
-        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
+        var pendingIntent : PendingIntent
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+            pendingIntent = geofencePendingIntentForSPlus
+        }else{
+            pendingIntent = geofencePendingIntent
+        }
+
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent).run {
             addOnSuccessListener {
                 _viewModel.validateAndSaveReminder(reminderDataItem)
             }

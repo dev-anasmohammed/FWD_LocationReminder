@@ -31,7 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:background="@color/colorPrimary"
-            android:backgroundTint="@color/colorPrimary"
+            android:backgroundTint="@color/colorAccent"
             android:text="@string/login"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
