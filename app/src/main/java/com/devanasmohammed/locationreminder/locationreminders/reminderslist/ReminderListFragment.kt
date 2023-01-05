@@ -1,17 +1,21 @@
 package com.devanasmohammed.locationreminder.locationreminders.reminderslist
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import com.devanasmohammed.locationreminder.R
+import com.devanasmohammed.locationreminder.authentication.AuthenticationActivity
 import com.devanasmohammed.locationreminder.base.BaseFragment
 import com.devanasmohammed.locationreminder.base.NavigationCommand
 import com.devanasmohammed.locationreminder.databinding.FragmentRemindersBinding
 import com.devanasmohammed.locationreminder.utils.setDisplayHomeAsUpEnabled
 import com.devanasmohammed.locationreminder.utils.setTitle
 import com.devanasmohammed.locationreminder.utils.setup
+import com.firebase.ui.auth.AuthUI
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+@Suppress("DEPRECATION")
 class ReminderListFragment : BaseFragment() {
     //use Koin to retrieve the ViewModel instance
     override val _viewModel: RemindersListViewModel by viewModel()
@@ -19,7 +23,7 @@ class ReminderListFragment : BaseFragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding =
             DataBindingUtil.inflate(
                 inflater,
@@ -71,7 +75,7 @@ class ReminderListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-//                TODO: add the logout implementation
+                signOut()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -82,6 +86,16 @@ class ReminderListFragment : BaseFragment() {
         super.onCreateOptionsMenu(menu, inflater)
 //        display logout as menu item
         inflater.inflate(R.menu.main_menu, menu)
+    }
+
+    private fun signOut(){
+        AuthUI.getInstance().signOut(requireContext())
+            .addOnSuccessListener {
+                val intent = Intent(activity, AuthenticationActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
     }
 
 }
