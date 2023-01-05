@@ -32,7 +32,7 @@ class RemindersDaoTest {
         )
     private val pharmacyReminder =
         ReminderDTO(
-            "pharmacy", "buy medicine for kids", "location2",
+            "pharmacy", "buy medicine for kids", "pharmacy location",
             2.0, 2.0
         )
 
