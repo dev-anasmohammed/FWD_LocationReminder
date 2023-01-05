@@ -83,6 +83,7 @@ class RemindersLocalRepositoryTest {
         // WHEN  - get reminders.
         val result = localDataSource.getReminders()
 
+        // THEN -return empty list
         result as Result.Success
         MatcherAssert.assertThat(result.data, Is.`is`(emptyList()))
     }
@@ -95,6 +96,7 @@ class RemindersLocalRepositoryTest {
         // WHEN  - reminder retrieved by ID.
         val result = localDataSource.getReminder(reminderId)
 
+        // THEN - return Reminder not found!
         result as Result.Error
         MatcherAssert.assertThat(result.message, `is`("Reminder not found!"))
     }
