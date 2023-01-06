@@ -44,18 +44,15 @@ class SaveReminderFragment : BaseFragment() {
     private lateinit var geofencingClient: GeofencingClient
 
     private val geofencePendingIntent: PendingIntent by lazy {
-        val intent = Intent(activity, GeofenceBroadcastReceiver::class.java)
+        val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
         intent.action = ACTION_GEOFENCE_EVENT
-
-        PendingIntent.getBroadcast(activity, 0, intent, FLAG_UPDATE_CURRENT)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            getBroadcast(requireContext(), 0, intent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
+        } else {
+            getBroadcast(requireContext(), 0, intent, FLAG_UPDATE_CURRENT)
+        }
     }
 
-    private val geofencePendingIntentForSPlus: PendingIntent by lazy {
-        val intent = Intent(activity, GeofenceBroadcastReceiver::class.java)
-        intent.action = ACTION_GEOFENCE_EVENT
-
-        PendingIntent.getBroadcast(activity, 0, intent, FLAG_IMMUTABLE)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -202,15 +199,7 @@ class SaveReminderFragment : BaseFragment() {
             .addGeofence(geofence)
             .build()
 
-        var pendingIntent : PendingIntent
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
-            pendingIntent = geofencePendingIntentForSPlus
-        }else{
-            pendingIntent = geofencePendingIntent
-        }
-
-        geofencingClient.addGeofences(geofencingRequest, pendingIntent).run {
+        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
             addOnSuccessListener {
                 _viewModel.validateAndSaveReminder(reminderDataItem)
             }

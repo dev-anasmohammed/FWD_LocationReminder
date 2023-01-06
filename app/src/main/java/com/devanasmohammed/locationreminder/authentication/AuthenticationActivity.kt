@@ -8,6 +8,7 @@ import androidx.databinding.DataBindingUtil
 import com.devanasmohammed.locationreminder.R
 import com.devanasmohammed.locationreminder.databinding.ActivityAuthenticationBinding
 import com.devanasmohammed.locationreminder.locationreminders.RemindersActivity
+import com.devanasmohammed.locationreminder.utils.SharedPreferenceManger
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
@@ -28,8 +29,12 @@ class AuthenticationActivity : AppCompatActivity() {
             .setContentView(this, R.layout.activity_authentication)
         binding.lifecycleOwner = this
 
-        //when the app starts again they are required to login first
-        AuthUI.getInstance().signOut(this)
+
+        val isSignIn = SharedPreferenceManger.loadBoolean(this,"isSignIn",false)
+
+        if(isSignIn==true){
+            navigateToReminderScreen()
+        }
 
         //Implement the create account and sign in using FirebaseUI,
         //use sign in using email and sign in using Google
@@ -74,6 +79,7 @@ class AuthenticationActivity : AppCompatActivity() {
      */
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) {
+            SharedPreferenceManger.saveData(this,"isSignIn",true)
             navigateToReminderScreen()
         }
     }
