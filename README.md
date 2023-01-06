@@ -3,7 +3,7 @@
 **1- APK file of final project** 
    - You will find it in FWD_LocationReminder/apk/
 
-**2- Git Repository with code **
+**2- Git Repository with code**
    - https://github.com/dev-anasmohammed/FWD_LocationReminder
    
    
