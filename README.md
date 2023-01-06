@@ -1,13 +1,13 @@
 ## Student Deliverables
 
-1- APK file of final project 
+**1- APK file of final project** 
    - You will find it in FWD_LocationReminder/apk/
 
-2- Git Repository with code 
+**2- Git Repository with code **
    - https://github.com/dev-anasmohammed/FWD_LocationReminder
    
    
-Test Explanation:
+**Test Explanation:**
 1- androidTest:
    - Unit Test ReminderDao to test CRUD opertations that include: 
      - Insert and get all  
@@ -29,7 +29,7 @@ Test Explanation:
      - add reminder with out enter title to test the snack bar error for title  
      - add reminder with out enter location to test the snack bar error for location 
      
-2- test:
+**2- test:**
    - Test RemindersListViewModel that include: 
      - load reminders and assert that is shows data 
      - load reminder and pause dispater to shows loading 
