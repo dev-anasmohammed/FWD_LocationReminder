@@ -88,14 +88,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         return binding.root
     }
 
+    @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         //zoom to the user location after taking his permission
         LocationPermissionHelper(
-            requireActivity(), requireView(), activityResultLauncherPermissions,false
+            requireActivity(),
+            requireView()
+            , activityResultLauncherPermissions,
+            false
         ).checkPermissionThenDoMethod {
+            map.isMyLocationEnabled = true
             getUserLocation()
         }
 
@@ -108,6 +113,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun getUserLocation() {
         if (!isGetLocation) {
+
             val mLocationRequest: LocationRequest = LocationRequest.create()
             mLocationRequest.interval = 1000
             mLocationRequest.fastestInterval = 1000
@@ -181,7 +187,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        map.isMyLocationEnabled = true
         setMapStyle()
         setPOIClick()
         setLongPressClick()
