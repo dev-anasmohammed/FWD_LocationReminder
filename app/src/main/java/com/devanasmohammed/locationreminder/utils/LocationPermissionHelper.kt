@@ -26,7 +26,8 @@ import com.google.android.material.snackbar.Snackbar
 class LocationPermissionHelper(
     private val activity: Activity,
     private val snackBarView: View,
-    private val activityResultLauncherPermissions: ActivityResultLauncher<Array<String>>
+    private val activityResultLauncherPermissions: ActivityResultLauncher<Array<String>>,
+    private val isBackgroundNeeded: Boolean
 ) {
 
     private val runningQOrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
@@ -67,19 +68,33 @@ class LocationPermissionHelper(
      */
     @RequiresApi(Build.VERSION_CODES.M)
     private fun checkPermissionsAndStartingAMethod(method: () -> Unit) {
-        if (foregroundLocationPermissionApproved() && backgroundLocationPermissionApproved()) {
-            method()
-        } else {
-            if (!foregroundLocationPermissionApproved()) {
-                requestForegroundLocationPermissions()
-            }
-            if (!backgroundLocationPermissionApproved()) {
-                requestBackgroundLocationPermission(method)
-            }
+        if (isBackgroundNeeded) {
             if (foregroundLocationPermissionApproved() && backgroundLocationPermissionApproved()) {
                 method()
+            } else {
+                if (!foregroundLocationPermissionApproved()) {
+                    requestForegroundLocationPermissions()
+                }
+                if (!backgroundLocationPermissionApproved()) {
+                    requestBackgroundLocationPermission(method)
+                }
+                if (foregroundLocationPermissionApproved() && backgroundLocationPermissionApproved()) {
+                    method()
+                }
+            }
+        }else{
+            if (foregroundLocationPermissionApproved()) {
+                method()
+            } else {
+                if (!foregroundLocationPermissionApproved()) {
+                    requestForegroundLocationPermissions()
+                }
+                if (foregroundLocationPermissionApproved()) {
+                    method()
+                }
             }
         }
+
     }
 
     /** ForegroundLocation **/

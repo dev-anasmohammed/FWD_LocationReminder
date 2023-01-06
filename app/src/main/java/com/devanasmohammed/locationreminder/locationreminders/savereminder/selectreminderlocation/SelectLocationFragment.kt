@@ -94,7 +94,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         //zoom to the user location after taking his permission
         LocationPermissionHelper(
-            requireActivity(), requireView(), activityResultLauncherPermissions
+            requireActivity(), requireView(), activityResultLauncherPermissions,false
         ).checkPermissionThenDoMethod {
             getUserLocation()
         }
@@ -178,8 +178,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         else -> super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        map.isMyLocationEnabled = true
         setMapStyle()
         setPOIClick()
         setLongPressClick()

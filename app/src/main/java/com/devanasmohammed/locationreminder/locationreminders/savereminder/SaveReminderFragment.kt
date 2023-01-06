@@ -53,7 +53,6 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -116,7 +115,8 @@ class SaveReminderFragment : BaseFragment() {
                 LocationPermissionHelper(
                     requireActivity(),
                     requireView(),
-                    activityResultLauncherPermissions
+                    activityResultLauncherPermissions,
+                    true
                 ).checkPermissionThenDoMethod {
                     checkLocationSettingsAndStartGeofence()
                 }
