@@ -3,6 +3,7 @@ package com.devanasmohammed.locationreminder.locationreminders.data.local
 import com.devanasmohammed.locationreminder.locationreminders.data.ReminderDataSource
 import com.devanasmohammed.locationreminder.locationreminders.data.dto.ReminderDTO
 import com.devanasmohammed.locationreminder.locationreminders.data.dto.Result
+import com.devanasmohammed.locationreminder.utils.wrapEspressoIdlingResource
 import kotlinx.coroutines.*
 
 /**
@@ -23,10 +24,12 @@ class RemindersLocalRepository(
      * @return Result the holds a Success with all the reminders or an Error object with the error message
      */
     override suspend fun getReminders(): Result<List<ReminderDTO>> = withContext(ioDispatcher) {
-        return@withContext try {
-            Result.Success(remindersDao.getReminders())
-        } catch (ex: Exception) {
-            Result.Error(ex.localizedMessage)
+        wrapEspressoIdlingResource {
+            return@withContext try {
+                Result.Success(remindersDao.getReminders())
+            } catch (ex: Exception) {
+                Result.Error(ex.localizedMessage)
+            }
         }
     }
 
