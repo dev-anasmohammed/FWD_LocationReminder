@@ -47,7 +47,7 @@ class SaveReminderFragment : BaseFragment() {
         val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
         intent.action = ACTION_GEOFENCE_EVENT
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            getBroadcast(requireContext(), 0, intent, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
+            getBroadcast(requireContext(), 0, intent, FLAG_UPDATE_CURRENT or FLAG_MUTABLE)
         } else {
             getBroadcast(requireContext(), 0, intent, FLAG_UPDATE_CURRENT)
         }
